@@ -6,6 +6,7 @@
     angular.module('amalieiev.international', []).provider('$international', [function () {
         var translations = {},
             parts = [],
+            syncLoad = false,
             urlTemplate = '/i18n/{lang}/{part}.json',
             preferredLanguage = 'en',
             $httpService;
@@ -30,18 +31,36 @@
          */
         function loadParts(lang) {
             angular.forEach(parts, function (part) {
-                $httpService.get(getUrl(lang, part), {cache: true}).then(function (response) {
-                    angular.extend(translations, response.data);
-                });
+                if (syncLoad) {
+                    angular.extend(translations, getSync(getUrl(lang, part)));
+                } else {
+                    $httpService.get(getUrl(lang, part), {cache: true}).then(function (response) {
+                        angular.extend(translations, response.data);
+                    });
+                }
             });
         }
 
+        function getSync(url) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, false);
+            xhr.send(null);
+            if (xhr.status === 200) {
+                return JSON.parse(xhr.responseText);
+            }
+        }
+
         return {
-            setPreferredLanguage: function (language) {
-                preferredLanguage = language;
-            },
-            setUrlTemplate: function (template) {
-                urlTemplate = template;
+            config: function (config) {
+                if (config.preferredLanguage) {
+                    preferredLanguage = config.preferredLanguage;
+                }
+                if (config.urlTemplate) {
+                    urlTemplate = config.urlTemplate;
+                }
+                if (config.syncLoad) {
+                    syncLoad = config.syncLoad;
+                }
             },
             addPart: function (part) {
                 parts.push(part);
