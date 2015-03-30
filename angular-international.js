@@ -3,7 +3,7 @@
  */
 (function () {
     'use strict';
-    angular.module('amalieiev.translate', []).provider('$translate', [function () {
+    angular.module('amalieiev.international', []).provider('$international', [function () {
         var translations = {},
             parts = [],
             urlTemplate = '/i18n/{lang}/{part}.json',
