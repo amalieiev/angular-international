@@ -1,62 +1,47 @@
 /**
  * Created by artem.malieiev on 3/27/2015.
  */
-(function () {
+(function (angular, window) {
     'use strict';
     angular.module('amalieiev.international', []).provider('$international', [function () {
-        var translations = {},
+        var locale = {},
             parts = [],
             sync = false,
-            templateUrl = '/i18n/{lang}/{part}.json',
-            preferredLanguage = 'en',
+            urlTemplate = '/i18n/{lang}/{part}.json',
+            lang = 'en',
             $httpService;
 
-        /**
-         * Returns url which points on localization file for required part.
-         * @param {string} lang
-         * @param {string} part
-         * @returns {string} url
-         * @private
-         * @example
-         * getUrl('en', 'login');
-         * '/i18n/en/login.json'
-         */
         function getUrl(lang, part) {
-            return templateUrl.replace('{lang}', lang).replace('{part}', part);
+            return urlTemplate.replace('{lang}', lang).replace('{part}', part);
         }
 
-        /**
-         *
-         * @param {string} lang
-         */
+        function getSync(url) {
+            var xhr = new window.XMLHttpRequest();
+            xhr.open('GET', url, false);
+            xhr.send(null);
+            return JSON.parse(xhr.responseText);
+        }
+
         function loadParts(lang) {
             angular.forEach(parts, function (part) {
+                var url = getUrl(lang, part);
                 if (sync) {
-                    angular.extend(translations, getSync(getUrl(lang, part)));
+                    angular.extend(locale, getSync(url));
                 } else {
-                    $httpService.get(getUrl(lang, part), {cache: true}).then(function (response) {
-                        angular.extend(translations, response.data);
+                    $httpService.get(url, {cache: true}).then(function (response) {
+                        angular.extend(locale, response.data);
                     });
                 }
             });
         }
 
-        function getSync(url) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, false);
-            xhr.send(null);
-            if (xhr.status === 200) {
-                return JSON.parse(xhr.responseText);
-            }
-        }
-
         return {
             config: function (config) {
-                if (config.preferredLanguage) {
-                    preferredLanguage = config.preferredLanguage;
+                if (config.lang) {
+                    lang = config.lang;
                 }
-                if (config.templateUrl) {
-                    templateUrl = config.templateUrl;
+                if (config.urlTemplate) {
+                    urlTemplate = config.urlTemplate;
                 }
                 if (config.sync) {
                     sync = config.sync;
@@ -67,12 +52,12 @@
             },
             $get: ['$http', function ($http) {
                 $httpService = $http;
-                loadParts(preferredLanguage);
+                loadParts(lang);
                 return {
                     use: loadParts,
-                    translations: translations
+                    locale: locale
                 };
             }]
         };
     }]);
-}());
+}(angular, window));
