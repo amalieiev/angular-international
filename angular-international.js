@@ -4,32 +4,40 @@
 (function (angular, window) {
     'use strict';
     angular.module('amalieiev.international', []).provider('$international', [function () {
-        var locale = {},
+        var translations = {},
+            translationsCache = {},
             parts = [],
-            sync = false,
-            urlTemplate = '/i18n/{lang}/{part}.json',
-            lang = 'en',
+            settings = {
+                sync: false,
+                baseLocale: null,
+                preferredLocale: 'en',
+                urlTemplate: '/i18n/{locale}/{part}.json'
+            },
             $httpService;
 
-        function getUrl(lang, part) {
-            return urlTemplate.replace('{lang}', lang).replace('{part}', part);
+        function getUrl(locale, part) {
+            return settings.urlTemplate.replace('{locale}', locale).replace('{part}', part);
         }
 
         function getSync(url) {
-            var xhr = new window.XMLHttpRequest();
+            var xhr;
+            if (translationsCache[url]) {
+                return translationsCache[url];
+            }
+            xhr = new window.XMLHttpRequest();
             xhr.open('GET', url, false);
             xhr.send(null);
-            return JSON.parse(xhr.responseText);
+            translationsCache[url] = JSON.parse(xhr.responseText);
+            return translationsCache[url];
         }
 
-        function loadParts(lang) {
+        function loadParts(locale) {
             angular.forEach(parts, function (part) {
-                var url = getUrl(lang, part);
-                if (sync) {
-                    angular.extend(locale, getSync(url));
+                if (settings.sync) {
+                    angular.extend(translations, getSync(getUrl(locale, part)));
                 } else {
-                    $httpService.get(url, {cache: true}).then(function (response) {
-                        angular.extend(locale, response.data);
+                    $httpService.get(getUrl(locale, part), {cache: true}).then(function (response) {
+                        angular.extend(translations, response.data);
                     });
                 }
             });
@@ -37,14 +45,17 @@
 
         return {
             config: function (config) {
-                if (config.lang) {
-                    lang = config.lang;
+                if (config.baseLocale) {
+                    settings.baseLocale = config.baseLocale;
+                }
+                if (config.preferredLocale) {
+                    settings.preferredLocale = config.preferredLocale;
                 }
                 if (config.urlTemplate) {
-                    urlTemplate = config.urlTemplate;
+                    settings.urlTemplate = config.urlTemplate;
                 }
                 if (config.sync) {
-                    sync = config.sync;
+                    settings.sync = config.sync;
                 }
             },
             addPart: function (part) {
@@ -52,10 +63,15 @@
             },
             $get: ['$http', function ($http) {
                 $httpService = $http;
-                loadParts(lang);
+                if (settings.baseLocale) {
+                    loadParts(settings.baseLocale);
+                }
+                if (settings.baseLocale !== settings.preferredLocale) {
+                    loadParts(settings.preferredLocale);
+                }
                 return {
                     use: loadParts,
-                    locale: locale
+                    locale: translations
                 };
             }]
         };

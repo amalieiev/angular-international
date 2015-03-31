@@ -43,7 +43,7 @@ app.js
 angular.module('myApp', [
     'amalieiev.international'
 ]).config(function ($internationalProvider) {
-    $internationalProvider.config({lang: 'en'});
+    $internationalProvider.config({preferredLocale: 'en'});
     $internationalProvider.addPart('main');
 }).controller('mainCtrl', function ($scope, $international) {
     $scope.locale = $international.locale;
