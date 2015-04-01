@@ -1,4 +1,4 @@
-# angular-international - [AngularJS](http://angularjs.org/) module which provide simple way to make you application international.
+# angular-international - [AngularJS](http://angularjs.org/) module which provides simple way to make you application international.
 
 ## Installation
 `bower install angular-international`
