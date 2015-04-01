@@ -1,10 +1,10 @@
 {
     "name": "angular-international",
-    "main": "angular-international.js",
-    "version": "0.0.5",
+    "main": "./dist/angular-international.js",
+    "version": "0.0.6",
     "homepage": "https://github.com/amalieiev/angular-international",
     "authors": [
-        "artem.malieiev <artem.malieiev@gmail.com>"
+        "artem.malieiev@gmail.com"
     ],
     "description": "angular international module",
     "keywords": [

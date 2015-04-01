@@ -1,9 +1,11 @@
-/**
- * Created by artem.malieiev on 3/27/2015.
- */
+(function (angular) {
+    'use strict';
+    angular.module('amalieiev.international', []);
+}(angular));
+
 (function (angular, window) {
     'use strict';
-    angular.module('amalieiev.international', []).provider('$international', [function () {
+    angular.module('amalieiev.international').provider('$international', [function () {
         var translations = {},
             translationsCache = {},
             parts = [],
