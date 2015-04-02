@@ -14,11 +14,27 @@ module.exports = function (grunt) {
                     'dist/angular-international.min.js': ['dist/angular-international.js']
                 }
             }
+        },
+        karma: {
+            unit: {
+                configFile: 'karma.conf.js'
+            },
+            dist: {
+                configFile: 'karma.conf.js'
+            }
+        },
+        watch: {
+            scripts: {
+                files: ['src/**/*.js', 'test/**/*.spec.js'],
+                tasks: ['karma']
+            }
         }
     });
 
     grunt.registerTask('build', [
+        'karma:unit',
         'concat',
-        'uglify'
+        'uglify',
+        'karma:dist'
     ]);
 };
