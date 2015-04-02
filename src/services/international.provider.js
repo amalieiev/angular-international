@@ -1,16 +1,14 @@
-(function (angular, window) {
+(function (angular) {
     'use strict';
     angular.module('amalieiev.international').provider('$international', [function () {
         var translations = {},
             translationsCache = {},
             parts = [],
             settings = {
-                sync: false,
                 baseLocale: null,
                 preferredLocale: 'en',
                 urlTemplate: '/i18n/{locale}/{part}.json'
-            },
-            $httpService;
+            };
 
         function getUrl(locale, part) {
             return settings.urlTemplate.replace('{locale}', locale).replace('{part}', part);
@@ -21,7 +19,7 @@
             if (translationsCache[url]) {
                 return translationsCache[url];
             }
-            xhr = new window.XMLHttpRequest();
+            xhr = new XMLHttpRequest();
             xhr.open('GET', url, false);
             xhr.send(null);
             translationsCache[url] = JSON.parse(xhr.responseText);
@@ -30,13 +28,7 @@
 
         function loadParts(locale) {
             angular.forEach(parts, function (part) {
-                if (settings.sync) {
-                    angular.extend(translations, getSync(getUrl(locale, part)));
-                } else {
-                    $httpService.get(getUrl(locale, part), {cache: true}).then(function (response) {
-                        angular.extend(translations, response.data);
-                    });
-                }
+                angular.extend(translations, getSync(getUrl(locale, part)));
             });
         }
 
@@ -51,15 +43,11 @@
                 if (config.urlTemplate) {
                     settings.urlTemplate = config.urlTemplate;
                 }
-                if (config.sync) {
-                    settings.sync = config.sync;
-                }
             },
             addPart: function (part) {
                 parts.push(part);
             },
-            $get: ['$http', function ($http) {
-                $httpService = $http;
+            $get: ['$template', function ($template) {
                 if (settings.baseLocale) {
                     loadParts(settings.baseLocale);
                 }
@@ -68,9 +56,10 @@
                 }
                 return {
                     use: loadParts,
-                    locale: translations
+                    locale: translations,
+                    template: $template
                 };
             }]
         };
     }]);
-}(angular, window));
+}(angular));
