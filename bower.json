@@ -18,10 +18,8 @@
         "**/.*",
         "node_modules",
         "bower_components",
-        "test",
-        "tests"
-    ],
-    "install": {
-        "path": "dist"
-    }
+        "src",
+        "Gruntfile.js",
+        "test"
+    ]
 }
