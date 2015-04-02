@@ -47,7 +47,7 @@
             addPart: function (part) {
                 parts.push(part);
             },
-            $get: ['$template', function ($template) {
+            $get: function () {
                 if (settings.baseLocale) {
                     loadParts(settings.baseLocale);
                 }
@@ -56,10 +56,9 @@
                 }
                 return {
                     use: loadParts,
-                    locale: translations,
-                    template: $template
+                    locale: translations
                 };
-            }]
+            }
         };
     }]);
 }(angular));
